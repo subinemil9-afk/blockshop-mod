@@ -16,8 +16,18 @@ jobs:
       - uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: 8.8
-      - run: gradle build
+      - name: Build
+        run: |
+          echo "Files in repo:"
+          find . -maxdepth 3 -not -path './.git/*' | head -50
+          FILE=$(find . -name settings.gradle -not -path './.git/*' | head -1)
+          if [ -z "$FILE" ]; then
+            echo "ERROR: settings.gradle not found in repository"
+            exit 1
+          fi
+          cd "$(dirname "$FILE")"
+          gradle build
       - uses: actions/upload-artifact@v4
         with:
           name: blockshop-mod-jar
-          path: build/libs/*.jar
+          path: "**/build/libs/*.jar"
